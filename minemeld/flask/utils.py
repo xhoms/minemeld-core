@@ -17,6 +17,7 @@ import re
 
 import yaml
 
+from . import config
 from .logger import LOG
 
 
@@ -48,7 +49,7 @@ class DirSnapshot(object):
 
 def running_config_path():
     rcpath = os.path.join(
-        os.path.dirname(os.environ.get('MM_CONFIG')),
+        config.get('MINEMELD_CONFIG_PATH'),
         'running-config.yml'
     )
 
@@ -57,7 +58,7 @@ def running_config_path():
 
 def committed_config_path():
     ccpath = os.path.join(
-        os.path.dirname(os.environ.get('MM_CONFIG')),
+        config.get('MINEMELD_CONFIG_PATH'),
         'committed-config.yml'
     )
 

@@ -31,7 +31,7 @@ def _handle_event(SR, engine_process_name, hdrs, payload):
         return
 
     SR.publish(
-        'mm-engine-status.<minemeld-engine>',
+        'mm-status.<minemeld-engine>',
         ujson.dumps({
             'source': '<minemeld-engine>',
             'timestamp': int(time.time())*1000,

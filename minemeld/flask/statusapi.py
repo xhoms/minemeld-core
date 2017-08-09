@@ -30,6 +30,7 @@ from .mmrpc import MMMaster
 from .mmrpc import MMStateFanout
 from .mmrpc import MMRpcClient
 from .redisclient import SR
+from .events import EventsGenerator
 from .aaa import MMBlueprint, enable_prevent_write, disable_prevent_write
 from .logger import LOG
 from .jobs import JOBS_MANAGER
@@ -40,29 +41,6 @@ __all__ = ['BLUEPRINT']
 
 
 BLUEPRINT = MMBlueprint('status', __name__, url_prefix='/status')
-
-
-def stream_events():
-    sid = MMStateFanout.subscribe()
-
-    try:
-        while True:
-            yield MMStateFanout.get(sid)
-
-    except GeneratorExit:
-        MMStateFanout.unsubscribe(sid)
-
-    except:
-        LOG.exception("Exception stream_events")
-        MMStateFanout.unsubscribe(sid)
-
-
-# @app.route('/status/events', methods=['GET'])
-# @flask.ext.login.login_required
-def get_events():
-    r = Response(stream_with_context(stream_events()),
-                 mimetype="text/event-stream")
-    return r
 
 
 class _PubSubWrapper(object):
@@ -134,7 +112,7 @@ def get_query_events(quuid):
 @BLUEPRINT.route('/events/status', read_write=False)
 def get_status_events():
     swc_response = stream_with_context(
-        _PubSubWrapper('mm-engine-status.*', pattern=True)
+        EventsGenerator
     )
     r = Response(swc_response, mimetype='text/event-stream')
 

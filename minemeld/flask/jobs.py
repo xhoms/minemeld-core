@@ -37,11 +37,7 @@ from .logger import LOG
 __all__ = ['init_app', 'JOBS_MANAGER']
 
 
-REDIS_CP = redis.ConnectionPool.from_url(
-    REDIS_URL,
-    max_connections=int(os.environ.get('REDIS_MAX_CONNECTIONS', 5))
-)
-
+REDIS_CP = None
 REDIS_JOBS_GROUP_PREFIX = 'mm-jobs-{}'
 
 
@@ -274,5 +270,12 @@ def teardown(exception):
 JOBS_MANAGER = werkzeug.local.LocalProxy(get_JobsManager)
 
 
-def init_app(app):
+def init_app(app, redis_url):
+    global REDIS_CP
+
+    REDIS_CP = redis.ConnectionPool.from_url(
+        redis_url,
+        max_connections=int(os.environ.get('REDIS_MAX_CONNECTIONS', 5))
+    )
+
     app.teardown_appcontext(teardown)

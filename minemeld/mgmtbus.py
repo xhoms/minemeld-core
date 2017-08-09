@@ -372,7 +372,7 @@ class MgmtbusMaster(object):
         try:
             source = nodename.split(':', 2)[2]
             self.SR.publish(
-                'mm-engine-status.'+source,
+                'mm-status.'+source,
                 ujson.dumps({
                     'source': source,
                     'timestamp': int(time.time())*1000,

@@ -1,4 +1,4 @@
-#  Copyright 2015-2016 Palo Alto Networks, Inc
+#  Copyright 2015-present Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -14,13 +14,10 @@
 
 import os
 
-import gevent
-
 import yaml
 import filelock
 import passlib.apache
 
-from . import utils
 from .logger import LOG
 
 
@@ -126,8 +123,44 @@ def _load_config(config_path):
                 except (OSError, IOError, ValueError):
                     LOG.exception('Error loading config file %s' % cf)
 
+    # sets defaults
+    local_base_path = new_config.get('MINEMELD_LOCAL_PATH', os.path.split(config_path)[0])
+    base_path = os.path.split(local_base_path)[0]
+
+    if 'MINEMELD_LOCAL_PATH' not in new_config:
+        new_config['MINEMELD_LOCAL_PATH'] = local_base_path
+
+    defaults = {
+        # default local directory structure
+        'MINEMELD_LOCAL_PATH': local_base_path,
+        'MINEMELD_LOCAL_PROTOTYPE_PATH': os.path.join(local_base_path, 'prototypes'),
+        'MINEMELD_LOCAL_LIBRARY_PATH': os.path.join(local_base_path, 'library'),
+        'MINEMELD_LOCAL_CERTS_PATH': os.path.join(local_base_path, 'certs'),
+
+        'MINEMELD_CONFIG_PATH': config_path,
+        'MINEMELD_API_CONFIG_PATH': os.path.join(config_path, 'api'),
+
+        # default directory structure
+        'MINEMELD_PROTOTYPE_PATH': os.path.join(base_path, 'prototypes', 'current'),
+
+        # default MineMeld directory structure
+        'MINEMELD_LOG_DIRECTORY_PATH': os.path.join(base_path, 'log'),
+
+        # default utilities path
+        'MINEMELD_PIP_PATH': os.path.join(base_path, 'engine', 'current', 'bin', 'pip'),
+        'MINEMELD_RESTORE_PATH': os.path.join(base_path, 'engine', 'current', 'bin', 'mm-restore'),
+        'MINEMELD_TRACED_PURGE_PATH': os.path.join(base_path, 'engine', 'current', 'bin', 'mm-traced-purge'),
+
+        # default metrics path
+        'RRD_PATH': '/var/lib/collectd/rrd/minemeld/',
+        'RRD_SOCKET_PATH': '/var/run/collectd.sock'
+    }
+    for k, v in defaults.iteritems():
+        if k not in new_config:
+            new_config[k] = v
+
     CONFIG = new_config
-    LOG.info('Config loaded: %r', new_config)
+    LOG.info('Config loaded: {!r}'.format(new_config))
 
 
 def _load_auth_dbs(config_path):
@@ -158,34 +191,25 @@ def _load_auth_dbs(config_path):
                 new=new_db
             )
 
-            LOG.info('%s loaded from %s', env, dbpath)
+            LOG.info('{} loaded from {}'.format(env, dbpath))
 
 
-def _config_monitor(config_path):
-    api_config_path = os.path.join(config_path, 'api')
-    dirsnapshot = utils.DirSnapshot(api_config_path, CONFIG_FILES_RE)
-    while True:
-        try:
-            with API_CONFIG_LOCK.acquire(timeout=600):
-                new_snapshot = utils.DirSnapshot(api_config_path, CONFIG_FILES_RE)
+# load configuration and auth dbs
+def reload_config(config_path=None):
+    if config_path is None:
+        config_path = get('MINEMELD_CONFIG_PATH')
 
-                if new_snapshot != dirsnapshot:
-                    try:
-                        _load_config(config_path)
-                        _load_auth_dbs(config_path)
+    try:
+        with API_CONFIG_LOCK.acquire(timeout=600):
+            try:
+                _load_config(config_path)
+                _load_auth_dbs(config_path)
 
-                    except gevent.GreenletExit:
-                        break
+            except:
+                LOG.exception('Error loading config')
 
-                    except:
-                        LOG.exception('Error loading config')
-
-                    dirsnapshot = new_snapshot
-
-        except filelock.Timeout:
-            LOG.error('Timeout locking config in config monitor')
-
-        gevent.sleep(1)
+    except filelock.Timeout:
+        LOG.error('Timeout locking config')
 
 
 # initialization
@@ -207,7 +231,4 @@ def init():
         os.environ.get('API_CONFIG_LOCK', '/var/run/minemeld/api-config.lock')
     )
 
-    _load_config(config_path)
-    _load_auth_dbs(config_path)
-    if config_path is not None:
-        gevent.spawn(_config_monitor, config_path)
+    reload_config(config_path=config_path)

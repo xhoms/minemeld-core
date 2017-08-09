@@ -42,9 +42,7 @@ class RedisSessionInterface(flask.sessions.SessionInterface):
     serializer = ujson
     session_class = RedisSession
 
-    def __init__(self, redis_=None, prefix='mm-session:'):
-        if redis_ is None:
-            redis_ = redis.StrictRedis()
+    def __init__(self, redis_, prefix='mm-session:'):
         self.redis = redis_
         self.prefix = prefix
         self.expirtaion_delta = timedelta(

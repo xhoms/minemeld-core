@@ -25,6 +25,7 @@ REDIS_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
 
 
 def create_app():
+    # disable automatic detection of timestamps in YAML files
     yaml.SafeLoader.add_constructor(
         u'tag:yaml.org,2002:timestamp',
         yaml.SafeLoader.construct_yaml_str
@@ -44,6 +45,9 @@ def create_app():
     from . import redisclient
     from . import supervisorclient
     from . import jobs
+    from . import events
+    from . import inotify
+    from . import fsmonitor
 
     session.init_app(app, REDIS_URL)
     aaa.init_app(app)
@@ -55,9 +59,10 @@ def create_app():
         logging.getLogger().setLevel(logging.INFO)
 
     mmrpc.init_app(app)
-    redisclient.init_app(app)
+    redisclient.init_app(app, REDIS_URL)
     supervisorclient.init_app(app)
-    jobs.init_app(app)
+    jobs.init_app(app, REDIS_URL)
+    events.init_app(app, REDIS_URL)
 
     # entrypoints
     from . import metricsapi  # noqa
@@ -129,6 +134,16 @@ def create_app():
 
         except (ImportError, RuntimeError):
             LOG.exception('Error loading WebUI entry point {}'.format(webuiname))
+
+    # setup path listeners and start FS monitor
+    monitored_paths = inotify.MonitoredPaths()
+    monitored_paths.add_listener(
+        config.get('MINEMELD_API_CONFIG_PATH'),
+        listener=config.reload_config,
+        match=config.CONFIG_FILES_RE
+    )
+    fsmonitor.init_paths(monitored_paths)
+    inotify.start_monitor(monitored_paths)
 
     for r in app.url_map.iter_rules():
         LOG.debug('app rule: {!r}'.format(r))

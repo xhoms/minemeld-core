@@ -5,17 +5,13 @@ import werkzeug.local
 
 from flask import g
 
-from . import REDIS_URL
 from .logger import LOG
 
 
 __all__ = ['init_app', 'SR']
 
 
-REDIS_CP = redis.ConnectionPool.from_url(
-    REDIS_URL,
-    max_connections=int(os.environ.get('REDIS_MAX_CONNECTIONS', 200))
-)
+REDIS_CP = None
 
 
 def get_SR():
@@ -41,5 +37,12 @@ def teardown(exception):
 SR = werkzeug.local.LocalProxy(get_SR)
 
 
-def init_app(app):
+def init_app(app, redis_url):
+    global REDIS_CP
+
+    REDIS_CP = redis.ConnectionPool.from_url(
+        redis_url,
+        max_connections=int(os.environ.get('REDIS_MAX_CONNECTIONS', 200))
+    )
+
     app.teardown_appcontext(teardown)

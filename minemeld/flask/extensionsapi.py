@@ -20,9 +20,11 @@ import functools
 import subprocess
 import uuid
 import stat
+from time import time
 from tempfile import NamedTemporaryFile
 
 import filelock
+from blinker import signal
 from gevent import Timeout
 from gevent.subprocess import Popen
 from flask import jsonify, request
@@ -33,7 +35,6 @@ import minemeld.loader
 
 from . import config
 from .jobs import JOBS_MANAGER
-from .prototypeapi import reset_prototype_paths
 from .aaa import MMBlueprint
 from .logger import LOG
 
@@ -152,7 +153,10 @@ def _extensions_changed(activated_path, deactivated_path, g):
                 sys.path.append(activated_path)
 
     minemeld.loader.bump_workingset()
-    reset_prototype_paths()
+    signal('mm-status').send('<prototypes>', data={
+        'status': 'changed',
+        'timestamp': int(time()*1000)
+    })
     _update_freeze_file()
 
 

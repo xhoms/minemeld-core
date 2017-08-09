@@ -19,6 +19,7 @@ import json
 
 import yaml
 import filelock
+from blinker import signal, ANY
 from flask import jsonify, request
 
 import minemeld.loader
@@ -89,6 +90,7 @@ def _local_library_path(prototypename):
 
     local_path = config.get(LOCAL_PROTOTYPE_PATH)
     if local_path is None:
+        # for backward compatibility
         paths = os.getenv(PROTOTYPE_ENV, None)
         if paths is None:
             raise RuntimeError(
@@ -323,6 +325,9 @@ def delete_local_prototype(prototypename):
     return jsonify(result='OK'), 200
 
 
-def reset_prototype_paths():
+_ = signal('mm-status')
+@_.connect_via('<prototypes>')
+def reset_prototype_paths(sender, data):
+    LOG.info('Invalidating prototype paths')
     global PROTOTYPE_PATHS
     PROTOTYPE_PATHS = None

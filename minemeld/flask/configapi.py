@@ -1,4 +1,4 @@
-#  Copyright 2015-2016 Palo Alto Networks, Inc
+#  Copyright 2015-present Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import copy
 
 import minemeld.run.config
 
+from blinker import signal
 from flask import request, jsonify
 
 from .redisclient import SR
@@ -55,7 +56,7 @@ class MMConfigVersion(object):
             self.counter = 0
             return
 
-        LOG.error('version: %s', version)
+        LOG.debug('version: %s', version)
 
         self.config, self.counter = version.split('+', 1)
         self.counter = int(self.counter)
@@ -75,6 +76,16 @@ class MMConfigVersion(object):
     def __iadd__(self, y):
         self.counter += y
         return self
+
+
+def _signal_change():
+    signal('mm-status').send(
+        '<candidate-config>',
+        data={
+            'status': SR.hget(REDIS_KEY_CONFIG, 'version'),
+            'timestamp': int(time.time()*1000)
+        }
+    )
 
 
 def _lock(resource):
@@ -189,7 +200,7 @@ def _load_config_from_file(rcpath):
     version = MMConfigVersion()
     tempconfigkey = REDIS_KEY_PREFIX+str(version)
 
-    SR.hset(tempconfigkey, 'version', version.config)
+    SR.hset(tempconfigkey, 'version', str(version))
     SR.hset(tempconfigkey, 'changed', 0)
 
     if 'fabric' in rcconfig:
@@ -228,6 +239,8 @@ def _load_config_from_file(rcpath):
     SR.rename(tempconfigkey, REDIS_KEY_CONFIG)
 
     _unlock(REDIS_KEY_CONFIG, clock)
+
+    _signal_change()
 
     return version.config
 
@@ -294,6 +307,17 @@ def _commit_config(version):
     return 'OK'
 
 
+def _increment_config_version():
+    version = SR.hget(REDIS_KEY_CONFIG, 'version')
+    if version is None:
+        raise ValueError('candidate config not initialized')
+
+    version = MMConfigVersion(version=version)
+    version += 1
+
+    SR.hset(REDIS_KEY_CONFIG, 'version', str(version))
+
+
 @_redlock
 def _config_full():
     cinfo = _config_info(lock=False)
@@ -335,7 +359,8 @@ def _create_node(nodebody):
     if version != info['version']:
         raise ValueError('version mismatch')
 
-    cversion = MMConfigVersion(version=info['version']+'+0')
+    cversion = MMConfigVersion(version=info['version'])
+    cversion.counter = 0
 
     _set_stanza(
         'node%d' % info['next_node_id'],
@@ -345,6 +370,10 @@ def _create_node(nodebody):
 
     SR.hset(REDIS_KEY_CONFIG, 'changed', 1)
     SR.hset(REDIS_KEY_CONFIG, 'next_node_id', info['next_node_id']+1)
+
+    _increment_config_version()
+
+    _signal_change()
 
     return {
         'version': str(cversion),
@@ -366,6 +395,10 @@ def _delete_node(nodenum, version):
 
     SR.hset(REDIS_KEY_CONFIG, 'changed', 1)
 
+    _increment_config_version()
+
+    _signal_change()
+
     return 'OK'
 
 
@@ -382,6 +415,10 @@ def _set_node(nodenum, nodebody):
     )
 
     SR.hset(REDIS_KEY_CONFIG, 'changed', 1)
+
+    _increment_config_version()
+
+    _signal_change()
 
     return str(result)
 
