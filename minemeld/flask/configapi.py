@@ -149,6 +149,17 @@ def _redlock(f):
     return _redlocked
 
 
+def _nodes_ids():
+    for k in SR.hkeys(REDIS_KEY_CONFIG):
+        if not k.startswith('node:'):
+            continue
+
+        if k.endswith(':version'):
+            continue
+
+        yield k
+
+
 def _set_stanza(stanza, value, version, config_key=REDIS_KEY_CONFIG):
     version_key = stanza+':version'
     cversion = SR.hget(config_key, version_key)
@@ -220,15 +231,13 @@ def _load_config_from_file(rcpath):
         )
 
     nodes = rcconfig.get('nodes', {})
-    for idx, (nodename, nodevalue) in enumerate(nodes.iteritems()):
+    for idx, (node_id, nodevalue) in enumerate(nodes.iteritems()):
         _set_stanza(
-            'node%d' % idx,
-            {'name': nodename, 'properties': nodevalue},
+            'node:{}'.format(node_id),
+            {'id': node_id, 'properties': nodevalue},
             config_key=tempconfigkey,
             version=version
         )
-
-    SR.hset(tempconfigkey, 'next_node_id', len(nodes))
 
     clock = _lock_timeout(REDIS_KEY_CONFIG)
     if clock is None:
@@ -268,18 +277,20 @@ def _commit_config(version):
         newconfig['mgmtbus'] = json.loads(mgmtbus)['properties']
 
     newconfig['nodes'] = {}
-    for n in range(config_info['next_node_id']):
-        node = _get_stanza('node%d' % n)
+    for node_key in _nodes_ids():
+        node_id = node_key.split(':', 1)[1]
+
+        node = _get_stanza('node:{}'.format(node_id))
         if node is None:
             continue
 
-        if node['name'] in newconfig:
-            raise ValueError('Error in config: duplicate node name - %s' %
-                             node['name'])
+        if node['id'] in newconfig:
+            raise ValueError('Error in config: duplicate node id - %s' %
+                             node['id'])
         if 'properties' not in node:
             raise ValueError('Error in config: no properties for node %s' %
-                             node['name'])
-        newconfig['nodes'][node['name']] = node['properties']
+                             node['id'])
+        newconfig['nodes'][node['id']] = node['properties']
 
     _unlock(REDIS_KEY_CONFIG, clock)
 
@@ -323,9 +334,9 @@ def _config_full():
     cinfo = _config_info(lock=False)
 
     cinfo['nodes'] = []
-    nnid = cinfo['next_node_id']
-    for n in range(nnid):
-        nc = _get_stanza('node%d' % n, lock=False)
+    for node_key in _nodes_ids():
+        node_id = node_key.split(':', 1)[1]
+        nc = _get_stanza('node:{}'.format(node_id), lock=False)
         cinfo['nodes'].append(nc)
 
     return cinfo
@@ -337,16 +348,18 @@ def _config_info():
     if version is None:
         raise ValueError('candidate config not initialized')
 
+    # check config version format
+    # raises exception if not valid
+    MMConfigVersion(version=version)
+
     fabric = SR.hget(REDIS_KEY_CONFIG, 'fabric') is not None
     mgmtbus = SR.hget(REDIS_KEY_CONFIG, 'mgmtbus') is not None
     changed = SR.hget(REDIS_KEY_CONFIG, 'changed') == "1"
-    next_node_id = int(SR.hget(REDIS_KEY_CONFIG, 'next_node_id'))
 
     return {
         'fabric': fabric,
         'mgmtbus': mgmtbus,
         'version': version,
-        'next_node_id': next_node_id,
         'changed': changed
     }
 
@@ -358,40 +371,41 @@ def _create_node(nodebody):
     version = nodebody.pop('version', None)
     if version != info['version']:
         raise ValueError('version mismatch')
+    id_ = nodebody.get('id', None)
+    if id_ is None:
+        raise ValueError('no ID in node description')
 
     cversion = MMConfigVersion(version=info['version'])
     cversion.counter = 0
 
     _set_stanza(
-        'node%d' % info['next_node_id'],
+        'node:{}'.format(id_),
         nodebody,
         cversion
     )
 
     SR.hset(REDIS_KEY_CONFIG, 'changed', 1)
-    SR.hset(REDIS_KEY_CONFIG, 'next_node_id', info['next_node_id']+1)
 
     _increment_config_version()
 
     _signal_change()
 
     return {
-        'version': str(cversion),
-        'id': info['next_node_id']
+        'version': str(cversion)
     }
 
 
 @_redlock
-def _delete_node(nodenum, version):
-    node = _get_stanza('node%d' % nodenum)
+def _delete_node(node_id, version):
+    node = _get_stanza('node:{}'.format(node_id))
     if node is None:
-        raise ValueError('node %d does not exist' % nodenum)
+        raise ValueError('node {} does not exist'.format(node_id))
 
     if MMConfigVersion(version=version) != MMConfigVersion(node['version']):
         raise VersionMismatchError('version mismatch')
 
-    SR.hdel(REDIS_KEY_CONFIG, 'node%d' % nodenum)
-    SR.hdel(REDIS_KEY_CONFIG, 'node%d:version' % nodenum)
+    SR.hdel(REDIS_KEY_CONFIG, 'node:{}'.format(node_id))
+    SR.hdel(REDIS_KEY_CONFIG, 'node:{}:version'.format(node_id))
 
     SR.hset(REDIS_KEY_CONFIG, 'changed', 1)
 
@@ -403,13 +417,13 @@ def _delete_node(nodenum, version):
 
 
 @_redlock
-def _set_node(nodenum, nodebody):
+def _set_node(node_id, nodebody):
     if 'version' not in nodebody:
         raise ValueError('version is required')
     version = MMConfigVersion(version=nodebody.pop('version'))
 
     result = _set_stanza(
-        'node%d' % nodenum,
+        'node:{}'.format(node_id),
         nodebody,
         version,
     )
@@ -542,15 +556,10 @@ def create_node():
     return jsonify(result=result)
 
 
-@BLUEPRINT.route('/node/<nodenum>', methods=['GET'], read_write=False)
-def get_node(nodenum):
+@BLUEPRINT.route('/node/<node_id>', methods=['GET'], read_write=False)
+def get_node(node_id):
     try:
-        nodenum = int(nodenum)
-    except ValueError:
-        return jsonify(error='invalid node number'), 400
-
-    try:
-        result = _get_stanza('node%d' % nodenum, lock=True)
+        result = _get_stanza('node:{}'.format(node_id), lock=True)
     except Exception as e:
         LOG.exception('error in get_node')
         return jsonify(error={'message': str(e)}), 500
@@ -561,20 +570,15 @@ def get_node(nodenum):
     return jsonify(result=result)
 
 
-@BLUEPRINT.route('/node/<nodenum>', methods=['PUT'], read_write=False)
-def set_node(nodenum):
-    try:
-        nodenum = int(nodenum)
-    except ValueError:
-        return jsonify(error='invalid node number'), 400
-
+@BLUEPRINT.route('/node/<node_id>', methods=['PUT'], read_write=False)
+def set_node(node_id):
     try:
         body = request.get_json()
     except Exception as e:
         return jsonify(error={'message': str(e)}), 400
 
     try:
-        result = _set_node(nodenum, body, lock=True)
+        result = _set_node(node_id, body, lock=True)
     except VersionMismatchError:
         return jsonify(error={'message': 'version mismatch'}), 409
     except Exception as e:
@@ -584,19 +588,14 @@ def set_node(nodenum):
     return jsonify(result=result)
 
 
-@BLUEPRINT.route('/node/<nodenum>', methods=['DELETE'], read_write=False)
-def delete_node(nodenum):
-    try:
-        nodenum = int(nodenum)
-    except ValueError:
-        return jsonify(error='invalid node number'), 400
-
+@BLUEPRINT.route('/node/<node_id>', methods=['DELETE'], read_write=False)
+def delete_node(node_id):
     version = request.args.get('version', None)
     if version is None:
         return jsonify(error={'message': 'version required'})
 
     try:
-        result = _delete_node(nodenum, version, lock=True)
+        result = _delete_node(node_id, version, lock=True)
     except VersionMismatchError:
         return jsonify(error={'message': 'version mismatch'}), 409
     except Exception as e:
