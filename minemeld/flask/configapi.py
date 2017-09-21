@@ -239,6 +239,14 @@ def _load_config_from_file(rcpath):
             version=version
         )
 
+    pipelines = utils.pipelines()
+    _set_stanza(
+        'pipelines',
+        pipelines,
+        config_key=tempconfigkey,
+        version=version
+    )
+
     clock = _lock_timeout(REDIS_KEY_CONFIG)
     if clock is None:
         SR.delete(tempconfigkey)
@@ -292,6 +300,14 @@ def _commit_config(version):
                              node['id'])
         newconfig['nodes'][node['id']] = node['properties']
 
+    pipelines = _get_stanza('pipelines')
+    if pipelines is None:
+        pipelines = {
+            'pipelines': [],
+            'nodes': []
+        }
+    pipelines.pop('version', None)
+
     _unlock(REDIS_KEY_CONFIG, clock)
 
     # we build a copy of the config for validation
@@ -308,6 +324,14 @@ def _commit_config(version):
     with open(ccpath, 'w') as f:
         yaml.safe_dump(
             newconfig,
+            f,
+            encoding='utf-8',
+            default_flow_style=False
+        )
+
+    with open(utils.pipelines_path(), 'w') as f:
+        yaml.safe_dump(
+            pipelines,
             f,
             encoding='utf-8',
             default_flow_style=False
@@ -339,6 +363,8 @@ def _config_full():
         nc = _get_stanza('node:{}'.format(node_id), lock=False)
         cinfo['nodes'].append(nc)
 
+    cinfo['pipelines'] = _get_stanza('pipelines', lock=False)
+
     return cinfo
 
 
@@ -354,11 +380,13 @@ def _config_info():
 
     fabric = SR.hget(REDIS_KEY_CONFIG, 'fabric') is not None
     mgmtbus = SR.hget(REDIS_KEY_CONFIG, 'mgmtbus') is not None
+    pipelines = SR.hget(REDIS_KEY_CONFIG, 'pipelines') is not None
     changed = SR.hget(REDIS_KEY_CONFIG, 'changed') == "1"
 
     return {
         'fabric': fabric,
         'mgmtbus': mgmtbus,
+        'pipelines': pipelines,
         'version': version,
         'changed': changed
     }
@@ -417,14 +445,10 @@ def _delete_node(node_id, version):
 
 
 @_redlock
-def _set_node(node_id, nodebody):
-    if 'version' not in nodebody:
-        raise ValueError('version is required')
-    version = MMConfigVersion(version=nodebody.pop('version'))
-
+def _set_stanza_with_lock(stanza, value, version):
     result = _set_stanza(
-        'node:{}'.format(node_id),
-        nodebody,
+        stanza,
+        value,
         version,
     )
 
@@ -437,14 +461,33 @@ def _set_node(node_id, nodebody):
     return str(result)
 
 
+def _set_node(node_id, nodebody, lock=False):
+    if 'version' not in nodebody:
+        raise ValueError('version is required')
+    version = MMConfigVersion(version=nodebody.pop('version'))
+
+    return _set_stanza_with_lock(
+        'node:{}'.format(node_id),
+        nodebody,
+        version,
+        lock=lock
+    )
+
+
 @BLUEPRINT.route('/running', methods=['GET'], read_write=False)
 def get_running_config():
-    return jsonify(result=utils.running_config())
+    result = utils.running_config()
+    result['pipelines'] = utils.pipelines()
+
+    return jsonify(result=result)
 
 
 @BLUEPRINT.route('/committed', methods=['GET'], read_write=False)
 def get_committed_config():
-    return jsonify(result=utils.committed_config())
+    result = utils.committed_config()
+    result['pipelines'] = utils.pipelines()
+
+    return jsonify(result=result)
 
 
 # API for manipulating candidate config
@@ -535,6 +578,46 @@ def get_mgmtbus():
 
     if result is None:
         return jsonify(error={'message': 'Not Found'}), 404
+
+    return jsonify(result=result)
+
+
+@BLUEPRINT.route('/pipelines', methods=['GET'], read_write=False)
+def get_pipelines():
+    try:
+        result = _get_stanza('pipelines', lock=True)
+    except Exception as e:
+        return jsonify(error={'message': str(e)}), 500
+
+    if result is None:
+        return jsonify(error={'message': 'Not Found'}), 404
+
+    return jsonify(result=result)
+
+
+@BLUEPRINT.route('/pipelines', methods=['PUT'], read_write=False)
+def set_pipelines():
+    try:
+        body = request.get_json()
+    except Exception as e:
+        return jsonify(error={'message': str(e)}), 400
+
+    try:
+        if 'version' not in body:
+            raise ValueError('version is required')
+        version = MMConfigVersion(version=body.pop('version'))
+
+        result = _set_stanza_with_lock(
+            'pipelines',
+            body,
+            version
+        )
+
+    except VersionMismatchError:
+        return jsonify(error={'message': 'version mismatch'}), 409
+    except Exception as e:
+        LOG.exception('exception is _set_stanza_with_lock')
+        return jsonify(error={'message': str(e)}), 500
 
     return jsonify(result=result)
 

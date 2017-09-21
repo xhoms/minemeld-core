@@ -65,6 +65,15 @@ def committed_config_path():
     return ccpath
 
 
+def pipelines_path():
+    pcpath = os.path.join(
+        config.get('MINEMELD_CONFIG_PATH'),
+        'pipelines.yml'
+    )
+
+    return pcpath
+
+
 def running_config():
     with open(running_config_path(), 'r') as f:
         rcconfig = yaml.safe_load(f)
@@ -77,6 +86,21 @@ def committed_config():
         ccconfig = yaml.safe_load(f)
 
     return ccconfig
+
+
+def pipelines():
+    try:
+        with open(pipelines_path(), 'r') as f:
+            pconfig = yaml.safe_load(f)
+
+    except:
+        LOG.exception('Error loading pipelines.yml')
+        return {
+            'pipelines': [],
+            'nodes': []
+        }
+
+    return pconfig
 
 
 def safe_remove(path):
