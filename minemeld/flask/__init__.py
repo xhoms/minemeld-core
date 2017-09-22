@@ -83,7 +83,7 @@ def create_app():
     from . import extensionsapi  # noqa
     from . import jobsapi  # noqa
 
-    configapi.init_app(app)
+    configapi.init_app(app, REDIS_URL)
     extensionsapi.init_app(app)
 
     app.register_blueprint(metricsapi.BLUEPRINT)
