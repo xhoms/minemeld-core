@@ -74,6 +74,15 @@ def pipelines_path():
     return pcpath
 
 
+def side_config_path(node_id):
+    scpath = os.path.join(
+        config.get('MINEMELD_CONFIG_PATH'),
+        '{}_side_config.yml'.format(node_id)
+    )
+
+    return scpath
+
+
 def running_config():
     with open(running_config_path(), 'r') as f:
         rcconfig = yaml.safe_load(f)
@@ -86,6 +95,23 @@ def committed_config():
         ccconfig = yaml.safe_load(f)
 
     return ccconfig
+
+
+def side_config(node_id):
+    scpath = side_config_path(node_id)
+
+    if not os.path.isfile(scpath):
+        return
+
+    try:
+        with open(side_config_path(node_id), 'r') as f:
+            sconfig = yaml.safe_load(f)
+
+    except OSError, IOError:
+        LOG.exception('Error loading side_config of {}'.format(node_id))
+        return
+
+    return sconfig
 
 
 def pipelines():

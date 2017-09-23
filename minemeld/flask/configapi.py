@@ -246,11 +246,19 @@ def _load_config_from_file(rcpath):
 
     nodes = rcconfig.get('nodes', {})
     for idx, (node_id, nodevalue) in enumerate(nodes.iteritems()):
-        _set_stanza(
-            'node:{}'.format(node_id),
-            {'main': nodevalue},
-            config_key=tempconfigkey
-        )
+        sconfig = utils.side_config(node_id)
+        if sconfig is not None:
+            _set_stanza(
+                'node:{}'.format(node_id),
+                {'main': nodevalue, 'side_config': sconfig},
+                config_key=tempconfigkey
+            )
+        else:
+            _set_stanza(
+                'node:{}'.format(node_id),
+                {'main': nodevalue},
+                config_key=tempconfigkey
+            )
 
     pipelines = utils.pipelines()
     _set_stanza(
@@ -264,7 +272,6 @@ def _load_config_from_file(rcpath):
         SR.delete(tempconfigkey)
         raise ValueError('Unable to lock config')
 
-    SR.delete(REDIS_KEY_CONFIG)
     SR.rename(tempconfigkey, REDIS_KEY_CONFIG)
 
     _unlock(REDIS_KEY_CONFIG, clock)
@@ -287,6 +294,7 @@ def _commit_config(version):
         raise VersionMismatchError('Versions mismatch')
 
     newconfig = {}
+    side_configs = {}
 
     fabric = _get_stanza('fabric')
     if fabric is not None:
@@ -304,13 +312,13 @@ def _commit_config(version):
         if node is None:
             continue
 
-        if node['id'] in newconfig:
-            raise ValueError('Error in config: duplicate node id - %s' %
-                             node['id'])
-        if 'properties' not in node:
-            raise ValueError('Error in config: no properties for node %s' %
-                             node['id'])
-        newconfig['nodes'][node['id']] = node['properties']
+        if 'main' not in node:
+            raise ValueError('Error in config: no main for node %s' %
+                             node_id)
+        newconfig['nodes'][node_id] = node['main']
+
+        if 'side_config' in node:
+            side_configs[node_id] = node['side_config']
 
     pipelines = _get_stanza('pipelines')
     if pipelines is None:
@@ -318,9 +326,6 @@ def _commit_config(version):
             'pipelines': [],
             'nodes': []
         }
-    pipelines.pop('version', None)
-
-    _unlock(REDIS_KEY_CONFIG, clock)
 
     # we build a copy of the config for validation
     # original config is not used because it could be modified
@@ -341,6 +346,15 @@ def _commit_config(version):
             default_flow_style=False
         )
 
+    for node_id, side_config in side_configs.iteritems():
+        with open(utils.side_config_path(node_id), 'w') as f:
+            yaml.safe_dump(
+                side_config,
+                f,
+                encoding='utf-8',
+                default_flow_style=False
+            )
+
     with open(utils.pipelines_path(), 'w') as f:
         yaml.safe_dump(
             pipelines,
@@ -349,7 +363,7 @@ def _commit_config(version):
             default_flow_style=False
         )
 
-    SR.hset(REDIS_KEY_CONFIG, 'changed', 0)
+    _unlock(REDIS_KEY_CONFIG, clock)
 
     return 'OK'
 
@@ -528,6 +542,7 @@ def _update_pipeline_node(parameters, rkey):
     if len(nodes) == len(pipelines['nodes']):
         raise RuntimeError('Unknown pipeline node ID {}'.format(_id))
 
+    pipelines['nodes'] = nodes
     pipelines['nodes'].append(value)
 
     _set_stanza('pipelines', pipelines, rkey)
@@ -566,7 +581,7 @@ def _delete_pipeline(parameters, rkey):
 
     plines = [n for n in pipelines['pipelines'] if n['id'] != _id]
     if len(plines) == len(pipelines['pipelines']):
-        raise RuntimeError('Pipeline node ID {}'.format(_id))
+        raise RuntimeError('Pipeline node ID {} unknown'.format(_id))
 
     pipelines['pipelines'] = plines
 
@@ -590,8 +605,9 @@ def _update_pipeline(parameters, rkey):
 
     plines = [n for n in pipelines['pipelines'] if n['id'] != _id]
     if len(plines) == len(pipelines['pipelines']):
-        raise RuntimeError('Pipeline node ID {}'.format(_id))
+        raise RuntimeError('Pipeline node ID {} unknown'.format(_id))
 
+    pipelines['pipelines'] = plines
     pipelines['pipelines'].append(value)
 
     _set_stanza('pipelines', pipelines, rkey)
@@ -605,9 +621,10 @@ def _apply_changes(version, changes):
 
     next_version = _increment_config_version()
 
-    tempconfigkey = REDIS_KEY_PREFIX+str(next_version)
+    tempconfigkey = REDIS_KEY_PREFIX+str(uuid.uuid4())
 
     REDIS_COPY_SCRIPT(keys=[REDIS_KEY_CONFIG, tempconfigkey])
+    SR.expire(tempconfigkey, 30)
 
     for change in changes:
         action = change.pop('action', None)
@@ -637,6 +654,7 @@ def _apply_changes(version, changes):
             raise RuntimeError('Unknown action: {!r}'.format(action))
 
     SR.hset(tempconfigkey, 'version', str(next_version))
+    SR.persist(tempconfigkey)
     SR.rename(tempconfigkey, REDIS_KEY_CONFIG)
 
     _signal_change()
