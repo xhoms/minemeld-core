@@ -55,8 +55,6 @@ class MWUpdate(object):
 
 class AggregateIPv4FT(actorbase.ActorBaseFT):
     def __init__(self, name, chassis, config):
-        self.active_requests = []
-
         super(AggregateIPv4FT, self).__init__(name, chassis, config)
 
     def configure(self):
@@ -390,63 +388,11 @@ class AggregateIPv4FT(actorbase.ActorBaseFT):
                 )
             )
 
-    def _send_indicators(self, source=None, from_key=None, to_key=None):
-        if from_key is None:
-            from_key = 0
-        if to_key is None:
-            to_key = 0xFFFFFFFF
-
-        result = self._calc_ipranges(from_key, to_key)
-        for u in result:
-            self.do_rpc(
-                source,
-                "update",
-                indicator=u.indicator(),
-                value=self._calc_indicator_value(u.uuids)
-            )
-
-    def get(self, source=None, indicator=None):
-        if not type(indicator) in [str, unicode]:
-            raise ValueError("Invalid indicator type")
-
-        indicator = int(netaddr.IPAddress(indicator))
-
-        result = self._calc_ipranges(indicator, indicator)
-        if len(result) == 0:
-            return None
-
-        u = result.pop()
-        return self._calc_indicator_value(u.uuids)
-
-    def get_all(self, source=None):
-        self._send_indicators(source=source)
-        return 'OK'
-
-    def get_range(self, source=None, index=None, from_key=None, to_key=None):
-        if index is not None:
-            raise ValueError('Index not found')
-        if from_key is not None:
-            from_key = int(netaddr.IPAddress(from_key))
-        if to_key is not None:
-            to_key = int(netaddr.IPAddress(to_key))
-
-        self._send_indicators(
-            source=source,
-            from_key=from_key,
-            to_key=to_key
-        )
-
-        return 'OK'
-
     def length(self, source=None):
         return self.table.num_indicators
 
     def stop(self):
         super(AggregateIPv4FT, self).stop()
-
-        for g in self.active_requests:
-            g.kill()
-        self.active_requests = []
 
         self.table.close()
 

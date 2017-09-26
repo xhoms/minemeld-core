@@ -185,7 +185,7 @@ class MineMeldConfig(_Config):
             )
 
             fabric = {
-                'class': 'AMQP',
+                'class': 'AMQPRedis',
                 'config': {
                     'num_connections': fabric_num_conns,
                     'priority': gevent.core.MINPRI

@@ -254,3 +254,58 @@ def get_metric(node, metric):
         return jsonify(error={'message': str(e)}), 400
 
     return jsonify(result=result)
+
+
+@BLUEPRINT.route('/aggregate', methods=['POST'], read_write=False)
+def get_aggregate():
+    cf = str(request.args.get('cf', 'MAX')).upper()
+    if cf not in ALLOWED_CF:
+        return jsonify(error={'message': 'Unknown function'}), 400
+
+    try:
+        dt = int(request.args.get('dt', '86400'))
+    except ValueError:
+        return jsonify(error={'message': 'Invalid delta'}), 400
+    if dt < 0:
+        return jsonify(error={'message': 'Invalid delta'}), 400
+
+    try:
+        resolution = int(request.args.get('r', '1800'))
+    except ValueError:
+        return jsonify(error={'message': 'Invalid resolution'})
+    if resolution < 0:
+        return jsonify(error={'message': 'Invalid resolution'}), 400
+
+    body = request.get_json(silent=True)
+    if body is None:
+        return jsonify(error=dict(message='No body in request')), 400
+    if 'metrics' not in body:
+        return jsonify(error=dict(message='No metrics in request')), 400
+
+    type_ = request.args.get('t', None)
+
+    cc = minemeld.collectd.CollectdClient(RRD_SOCKET_PATH)
+
+    result = None
+    for m in body['metrics']:
+        v = _fetch_metric(cc, m, cf=cf, dt=dt, r=resolution, type_=type_)
+
+        if result is None:
+            result = v
+            continue
+
+        for idx, p in enumerate(v):
+            if p[0] != result[idx][0]:
+                LOG.error('Timestamp mismatch {} - {}'.format(p[0], result[idx][0]))
+                break
+
+            if p[1] is None:
+                continue
+
+            if result[idx][1] is None:
+                result[idx][1] = p[1]
+                continue
+
+            result[idx][1] += p[1]
+
+    return jsonify(result=result)

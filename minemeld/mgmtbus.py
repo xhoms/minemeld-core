@@ -514,7 +514,6 @@ class MgmtbusSlaveHub(object):
                 'mgmtbus_reset',
                 'mgmtbus_status',
                 'mgmtbus_checkpoint',
-                'mgmtbus_hup',
                 'mgmtbus_signal'
             ],
             method_prefix='mgmtbus_'

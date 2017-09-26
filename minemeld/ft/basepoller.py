@@ -903,7 +903,7 @@ class BasePollerFT(base.BaseFT):
 
     def mgmtbus_signal(self, source=None, signal=None, **kwargs):
         if signal != 'flush':
-            super(BasePollerFT, self).mgmtbus_signal(
+            return super(BasePollerFT, self).mgmtbus_signal(
                 source=source,
                 signal=signal,
                 **kwargs

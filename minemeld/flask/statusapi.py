@@ -163,7 +163,7 @@ def get_minemeld_running_config():
 
 
 # XXX this should be moved to a different endpoint
-@BLUEPRINT.route('/<nodename>/hup', methods=['GET', 'POST'], read_write=False)
+@BLUEPRINT.route('/<nodename>/hup', methods=['GET'], read_write=False)
 def hup_node(nodename):
     status = MMMaster.status()
     tr = status.get('result', None)
@@ -174,7 +174,16 @@ def hup_node(nodename):
     if nname not in tr:
         return jsonify(error={'message': 'Unknown node'}), 404
 
-    MMRpcClient.send_cmd(nodename, 'hup', {'source': 'minemeld-web'})
+    params = {
+        'source': 'minemeld-web',
+        'signal': 'hup'
+    }
+
+    MMRpcClient.send_cmd(
+        target=nodename,
+        method='signal',
+        params=params
+    )
 
     return jsonify(result='ok'), 200
 
@@ -200,13 +209,16 @@ def signal_node(nodename, signalname):
         'signal': signalname
     })
 
-    MMRpcClient.send_cmd(
+    result = MMRpcClient.send_cmd(
         target=nodename,
         method='signal',
         params=params
     )
 
-    return jsonify(result='ok'), 200
+    if result is None:
+        result = 'OK'
+
+    return jsonify(result=result), 200
 
 
 def _clean_local_backup(local_backup_file, g):

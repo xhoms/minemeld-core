@@ -371,9 +371,6 @@ class BaseFT(object):
                 'update',
                 'withdraw',
                 'checkpoint',
-                'get',
-                'get_all',
-                'get_range',
                 'length'
             ]
         )
@@ -683,13 +680,13 @@ class BaseFT(object):
 
         return 'OK'
 
-    def mgmtbus_hup(self, source=None):
-        self.hup(source=source)
-
     def mgmtbus_signal(self, source=None, signal=None, **kwargs):
         if signal == 'trace':
             self.enable_full_trace()
             return self._disable_full_trace
+
+        elif signal == 'hup':
+            return self.hup(source=source)
 
         raise NotImplementedError('{}: signal - not implemented'.format(self.name))
 
@@ -704,16 +701,6 @@ class BaseFT(object):
 
     def get_state(self):
         return self.state
-
-    def get(self, source=None, indicator=None):
-        raise NotImplementedError('%s: get - not implemented' % self.name)
-
-    def get_all(self, source=None):
-        raise NotImplementedError('%s: get_all - not implemented' % self.name)
-
-    def get_range(self, source=None, index=None, from_key=None, to_key=None):
-        raise NotImplementedError('%s: get_range - not implemented' %
-                                  self.name)
 
     def length(self, source=None):
         raise NotImplementedError('%s: length - not implemented' % self.name)
