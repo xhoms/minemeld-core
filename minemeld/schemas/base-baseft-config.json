@@ -1,0 +1,46 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.base.BaseFT",
+    "title": "minemeld.ft.base.BaseFT configuration",
+    "type": "object",
+    "definitions": {
+        "filter": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"                        
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "actions"
+            ]
+        },
+        "filterSet": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/filter"
+            }
+        }
+    },
+    "properties": {
+        "infilters": {
+            "$ref": "#/definitions/filterSet"
+        },
+        "outfilters": {
+            "$ref": "#/definitions/filterSet"
+        }
+    }
+}

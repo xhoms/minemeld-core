@@ -1,0 +1,14 @@
+- id: minemeld.ft.base.BaseFT
+  name: Base node class
+  node_type: unknown
+  config_schema: base-baseft-config.json
+  internal: true
+- id: minemeld.ft.basepoller.BasePollerFT
+  name: BasePoller node class
+  node_type: miner
+  config_schema: basepoller-basepollerft-config.json
+  internal: true
+- id: minemeld.ft.http.HttpFT
+  name: Miner for plain text feeds over HTTP
+  node_type: miner
+  config_schema: http-httpft-config.json

@@ -121,11 +121,6 @@ class Chassis(object):
     def request_mgmtbus_channel(self, ft):
         self.mgmtbus.request_channel(ft)
 
-    def request_rpc_channel(self, ftname, ft, allowed_methods=None):
-        if allowed_methods is None:
-            allowed_methods = []
-        self.fabric.request_rpc_channel(ftname, ft, allowed_methods)
-
     def request_pub_channel(self, ftname):
         return self.fabric.request_pub_channel(ftname)
 
@@ -133,10 +128,6 @@ class Chassis(object):
         if allowed_methods is None:
             allowed_methods = []
         self.fabric.request_sub_channel(ftname, ft, subname, allowed_methods)
-
-    def send_rpc(self, sftname, dftname, method, params, block, timeout):
-        return self.fabric.send_rpc(sftname, dftname, method, params,
-                                    block=block, timeout=timeout)
 
     def _log_actor(self):
         while True:

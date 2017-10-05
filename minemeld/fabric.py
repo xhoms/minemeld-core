@@ -45,16 +45,6 @@ class Fabric(object):
 
         self.comm = minemeld.comm.factory(self.comm_class, self.comm_config)
 
-    def request_rpc_channel(self, ftname, node, allowed_methods):
-        """Creates a new RPC channel on the communication backend.
-
-        Args:
-            ftname (str): node name
-            node: node instance
-            allowed_methods (list): list of allowed methods
-        """
-        self.comm.request_rpc_server_channel(ftname, node, allowed_methods)
-
     def request_pub_channel(self, ftname):
         """Creates a new channel for publishing to a topic with name ftname.
 
@@ -74,27 +64,6 @@ class Fabric(object):
         """
         _ = ftname  # noqa
         self.comm.request_sub_channel(subname, node, allowed_methods)
-
-    def send_rpc(self, sftname, dftname, method, params,
-                 block=True, timeout=None):
-        """Sends a RPC command to a specific node.
-
-        Args:
-            sftname (str): source node name
-            dftname (str): destination node name
-            method (str): method name
-            params (dict): parameters
-            block (bool): if call should block
-            timeout (int): timeout in seconds
-        """
-        params['source'] = sftname
-        self.comm.send_rpc(
-            dftname,
-            method,
-            params,
-            block=block,
-            timeout=timeout
-        )
 
     def _comm_failure(self):
         self.chassis.fabric_failed()

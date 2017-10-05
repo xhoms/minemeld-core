@@ -1,0 +1,51 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.http.HttpFT",
+    "title": "minemeld.ft.http.HttpFT static configuration",
+    "type": "object",
+    "definitions": {
+        "regexAndTransform": {
+            "type": "object",
+            "properties": {
+                "regex": {
+                    "type": "string"
+                },
+                "transform": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"            
+        }
+    },
+    "properties": {
+        "url": {
+            "type": "string"
+        },
+        "polling_timeout": {
+            "type": "integer"
+        },
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "user_agent": {
+            "type": "string"
+        },
+        "ignore_regex": {
+            "type": "string"
+        },
+        "indicator": {
+            "$ref": "#/definitions/regexAndTransform"
+        },
+        "fields": {
+            "additionalProperties": {
+                "$ref": "#/definitions/regexAndTransform"
+            }
+        }
+    },
+    "required": ["url"],
+    "additionalProperties": false
+}

@@ -19,6 +19,17 @@ class StatusEventsSubscriber(object):
         self._g = None
         self._signal = signal('mm-status')
 
+    def _retry_wrap(self):
+        while True:
+            try:
+                self._listen()
+
+            except gevent.GreenletExit:
+                break
+
+            except:
+                LOG.exception('Exception in event listener')
+
     def _listen(self):
         pubsub = self.SR.pubsub(ignore_subscribe_messages=True)
         pubsub.psubscribe('mm-status.*')
@@ -40,7 +51,7 @@ class StatusEventsSubscriber(object):
     def start(self):
         if self._g is not None:
             return
-        self._g = gevent.spawn(self._listen)
+        self._g = gevent.spawn(self._retry_wrap)
 
 
 class EventsReceiver(object):

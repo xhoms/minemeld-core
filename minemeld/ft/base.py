@@ -364,17 +364,6 @@ class BaseFT(object):
         if output:
             self.output = self.chassis.request_pub_channel(self.name)
 
-        self.chassis.request_rpc_channel(
-            self.name,
-            self,
-            allowed_methods=[
-                'update',
-                'withdraw',
-                'checkpoint',
-                'length'
-            ]
-        )
-
         self.state = ft_states.CONNECTED
 
     def apply_infilters(self, origin, method, indicator, value):
@@ -392,10 +381,6 @@ class BaseFT(object):
             indicator=indicator,
             value=value
         )
-
-    def do_rpc(self, dftname, method, block=True, timeout=30, **kwargs):
-        return self.chassis.send_rpc(self.name, dftname, method, kwargs,
-                                     block=block, timeout=timeout)
 
     @_counting('update.tx')
     def emit_update(self, indicator, value):

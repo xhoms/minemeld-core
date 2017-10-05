@@ -80,6 +80,9 @@ setup(
     ],
     long_description=_long_description,
     packages=_packages,
+    package_data = {
+        '': ['schemas/*.yml', 'schemas/*.json']
+    },
     provides=['minemeld'],
     install_requires=_requirements,
     ext_modules=cythonize([GDNS]),

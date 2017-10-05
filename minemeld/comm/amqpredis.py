@@ -18,13 +18,15 @@ This module implements AMQP communication class for mgmtbus and fabric.
 
 from __future__ import absolute_import
 
+import logging
+import uuid
+import os
+
 import amqp.connection
 import amqp
 import gevent
 import gevent.event
 import ujson as json
-import logging
-import uuid
 
 import redis
 
@@ -453,7 +455,7 @@ class AMQPRedis(object):
 
         # XXX
         self.redis_config = {
-            'url': 'unix:///var/run/redis.sock?db=0'
+            'url': os.environ.get('REDIS_URL', 'unix:///var/run/redis/redis.sock')
         }
         self.redis_cp = redis.ConnectionPool.from_url(
             self.redis_config['url']

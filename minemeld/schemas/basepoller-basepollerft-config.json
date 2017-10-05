@@ -1,0 +1,59 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "sepoller.BasePollerFT",
+    "title": "minemeld.ft.basepoller.BasePollerFT configuration",
+    "type": "object",
+    "definitions": {
+        "age_out": {
+            "type": "object",
+            "properties": {
+                "interval": {
+                    "type": "integer"
+                },
+                "sudden_death": {
+                    "type": "boolean"
+                },
+                "default": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "null" }
+                    ]
+                },
+                "additionalProperties": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.base.BaseFT#"            
+        }
+    },
+    "properties": {
+        "source_name": {
+            "type": "string"
+        },
+        "attributes": {
+            "type": "object"
+        },
+        "multiple_indicator_types": {
+            "type": "boolean"
+        },
+        "interval": {
+            "type": "integer"
+        },
+        "num_retries": {
+            "type": "integer"
+        },
+        "aggregate_indicators": {
+            "type": "boolean"
+        },
+        "aggregate_use_partial": {
+            "type": "boolean"
+        },
+        "age_out": {
+            "$ref": "#/definitions/age_out"
+        }    
+    }
+}
