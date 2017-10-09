@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.o365.O365XML",
+    "title": "minemeld.ft.o365.O365XML static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "polling_timeout": {
+            "type": "integer"
+        },
+        "url": {
+            "type": "string"
+        },
+        "products": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "additionalProperties": false
+}

@@ -27,12 +27,12 @@ def _load_schemas(sdirectory):
         id_ = node.get('id', None)
         if id_ is None:
             LOG.error('No id in node schema {!r}'.format(node))
-            return []
+            continue
 
         config_schema = node.get('config_schema', None)
         if config_schema is None:
             LOG.info('No config schema for node schema {!r}'.format(node))
-            return []
+            continue
 
         try:
             with open(os.path.join(sdirectory, os.path.basename(config_schema))) as f:

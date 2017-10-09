@@ -1,0 +1,92 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.taxii.TaxiiClient",
+    "title": "minemeld.ft.taxii.TaxiiClient static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "initial_interval": {
+            "type": "string"
+        },
+        "max_poll_dt": {
+            "type": "integer"
+        },
+        "ip_version_auto_detect": {
+            "type": "boolean"
+        },
+        "ignore_composition_operator": {
+            "type": "boolean"
+        },
+        "create_fake_indicator": {
+            "type": "boolean"
+        },
+        "lower_timestamp_precision": {
+            "type": "boolean"
+        },
+        "hash_priority": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "discovery_service": {
+            "type": "string"
+        },
+        "collection": {
+            "type": "string"
+        },
+        "client_credentials_required": {
+            "type": "boolean"
+        },
+        "username": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "client_cert_required": {
+            "type": "boolean"
+        },
+        "key_file": {
+            "type": "string"
+        },
+        "cert_file": {
+            "type": "string"
+        },
+        "ca_file": {
+            "type": "string"
+        },
+        "subscription_id": {
+            "type": "string"
+        },
+        "subscription_id_required": {
+            "type": "boolean"
+        },
+        "side_config": {
+            "type": "string"
+        },
+        "prefix": {
+            "type": "string"
+        },
+        "confidence_map": {
+            "type": "object",
+            "properties": {
+                "low": {
+                    "type": "integer"
+                },
+                "medium": {
+                    "type": "integer"
+                },
+                "high": {
+                    "type": "integer"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

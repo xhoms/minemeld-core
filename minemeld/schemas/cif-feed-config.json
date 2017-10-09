@@ -1,0 +1,136 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.cif.Feed",
+    "title": "minemeld.ft.cif.Feed static configuration",
+    "type": "object",
+    "definitions": {
+        "cifapiv2filter": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "integer"
+                },
+                "reporttimeend": {
+                    "type": "string",
+                    "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+                },
+                "reporttime": {
+                    "type": "string",
+                    "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+                },
+                "q": {
+                    "type": "string"
+                },
+                "otype": {
+                    "type": "string",
+                    "enum": [
+                        "ipv4",
+                        "ipv6",
+                        "fqdn",
+                        "url",
+                        "email"
+                    ]
+                },
+                "nolog": {
+                    "type": "integer"
+                },
+                "observable": {
+                    "type": "string"
+                },
+                "portlist": {
+                    "type": "string",
+                    "pattern": "^(([0-9]+)|([0-9]+-[0-9]+))(,(([0-9]+)|([0-9]+-[0-9]+)))*$"
+                },
+                "protocol": {
+                    "type": "string",
+                    "enum": [
+                        "icmp",
+                        "tcp",
+                        "udp"
+                    ]
+                },
+                "cc": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$"
+                },
+                "asn": {
+                    "type": "integer"
+                },
+                "confidence": {
+                    "type": "integer"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "application": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "rdata": {
+                    "type": "string"
+                },
+                "adata": {
+                    "type": "string"
+                },
+                "firsttime": {
+                    "type": "string",
+                    "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+                },
+                "lasttime": {
+                    "type": "string",
+                    "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+                },
+                "limit": {
+                    "type": "integer"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "remote": {
+            "type": "string"
+        },
+        "token": {
+            "type": "string"
+        },
+        "initial_days": {
+            "type": "integer"
+        },
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "prefix": {
+            "type": "string"
+        },
+        "side_config": {
+            "type": "string"
+        },
+        "filters": {
+            "$ref": "#/definitions/cifapiv2filter"
+        },
+        "fields": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "remote"
+    ],
+    "additionalProperties": false
+}

@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.phishme.Intelligence",
+    "title": "minemeld.ft.phishme.Intelligence static configuration",
+    "type": "object",
+    "definitions": {
+        "conf_map": {
+            "type": "object",
+            "properties": {
+                "Major": {
+                    "type": "integer"
+                },
+                "Moderate": {
+                    "type": "integer"
+                },
+                "Minor": {
+                    "type": "integer"
+                },
+                "None": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "Major",
+                "Moderate",
+                "Minor",
+                "None"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "polling_timeout": {
+            "type": "integer"
+        },
+        "prefix": {
+            "type": "string"
+        },
+        "initial_interval": {
+            "type": "string"
+        },
+        "fields": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "confidence_map": {
+            "$ref": "#/definitions/conf_map"
+        },
+        "product": {
+            "type": "string"
+        },
+        "source_name": {
+            "type": "string"
+        },
+        "side_config": {
+            "type": "string"
+        },
+        "username": {
+            "type": "string"
+        },
+        "api_key": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}

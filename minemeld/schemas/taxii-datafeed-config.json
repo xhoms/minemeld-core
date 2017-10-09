@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.taxii.DataFeed",
+    "title": "minemeld.ft.taxii.DataFeed configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.base.BaseFT#"
+        }
+    },
+    "properties": {
+        "redis_host": {
+            "type": "string"
+        },
+        "redis_port": {
+            "type": "integer"
+        },
+        "redis_password": {
+            "type": "string"
+        },
+        "redis_db": {
+            "type": "integer"
+        },
+        "namespace": {
+            "type": "string"
+        },
+        "namespaceuri": {
+            "type": "string"
+        },
+        "age_out_interval": {
+            "type": "string"
+        },
+        "max_entries": {
+            "type": "integer"
+        }
+    },
+    "additionalProperties": false
+}

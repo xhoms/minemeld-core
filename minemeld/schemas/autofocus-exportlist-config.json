@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.autofocus.ExportList",
+    "title": "minemeld.ft.autofocus.ExportList static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"            
+        }
+    },
+    "properties": {
+        "autofocus_hostname": {
+            "type": "string"
+        },
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "label": {
+            "type": "string"
+        },
+        "api_key": {
+            "type": "string"
+        },
+        "side_config": {
+            "type": "string"
+        }
+    },
+    "required": ["autofocus_hostname"],
+    "additionalProperties": false
+}

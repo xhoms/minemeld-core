@@ -1,0 +1,53 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.tmt.DTIAPI",
+    "title": "minemeld.ft.tmt.DTIAPI static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "polling_timeout": {
+            "type": "integer"
+        },
+        "delimiter": {
+            "type": "string",
+            "maxLength": 1,
+            "minLength": 1
+        },
+        "doublequote": {
+            "type": "boolean"
+        },
+        "escapechar": {
+            "type": "string",
+            "maxLength": 1,
+            "minLength": 1
+        },
+        "quotechar": {
+            "type": "string",
+            "maxLength": 1,
+            "minLength": 1
+        },
+        "skipinitialspace": {
+            "type": "boolean"
+        },
+        "include_suspicious": {
+            "type": "boolean"
+        },
+        "initial_interval": {
+            "type": "string"
+        },
+        "api_key": {
+            "type": "string"
+        },
+        "side_config": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}

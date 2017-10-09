@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "sepoller.BasePollerFT",
-    "title": "minemeld.ft.basepoller.BasePollerFT configuration",
+    "id": "minemeld.ft.syslog.SyslogMiner",
+    "title": "minemeld.ft.syslog.SyslogMiner configuration",
     "type": "object",
     "definitions": {
         "age_out": {
@@ -15,8 +15,12 @@
                 },
                 "default": {
                     "anyOf": [
-                        { "type": "string" },
-                        { "type": "null" }
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
                     ]
                 },
                 "additionalProperties": {
@@ -27,7 +31,7 @@
     },
     "$extends": {
         "base": {
-            "$ref": "minemeld.ft.base.BaseFT#"            
+            "$ref": "minemeld.ft.base.BaseFT#"
         }
     },
     "properties": {
@@ -37,23 +41,27 @@
         "attributes": {
             "type": "object"
         },
-        "multiple_indicator_types": {
-            "type": "boolean"
-        },
-        "interval": {
-            "type": "integer"
-        },
-        "num_retries": {
-            "type": "integer"
-        },
-        "aggregate_indicators": {
-            "type": "boolean"
-        },
-        "aggregate_use_partial": {
-            "type": "boolean"
-        },
         "age_out": {
             "$ref": "#/definitions/age_out"
-        }    
-    }
+        },
+        "exchange": {
+            "type": "string"
+        },
+        "rabbitmq_username": {
+            "type": "string"
+        },
+        "rabbitmq_password": {
+            "type": "string"
+        },
+        "indicator_mapping": {
+            "type": "object"
+        },
+        "prefix": {
+            "type": "string"
+        },
+        "rules": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
 }

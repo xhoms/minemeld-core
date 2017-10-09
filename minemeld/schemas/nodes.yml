@@ -12,3 +12,147 @@
   name: Miner for plain text feeds over HTTP
   node_type: miner
   config_schema: http-httpft-config.json
+- id: minemeld.ft.anomali.Intelligence
+  name: Miner node for Anomali Intelligence API
+  node_type: miner
+  config_schema: anomali-intelligence-config.json
+- id: minemeld.ft.autofocus.ExportList
+  name: Miner node for Palo Alto Networks AutoFocus ExportList
+  node_type: miner
+  config_schema: autofocus-exportlist-config.json
+- id: minemeld.ft.azure.AzureXML
+  name: Miner for Microsoft Azure Public IP addresses
+  node_type: miner
+  config_schema: azure-azurexml-config.json
+- id: minemeld.ft.cif.Feed
+  name: Miner for CIF
+  node_type: miner
+  config_schema: cif-feed-config.json
+- id: minemeld.ft.localdb.Miner
+  name: Miner for Local DB
+  node_type: miner
+  config_schema: localdb-miner-config.json
+- id: minemeld.ft.mm.JSONSEQMiner
+  name: Library of nodes to work with multiple MineMeld instances
+  node_type: miner
+  config_schema: mm-jsonseqminer-config.json
+- id: minemeld.ft.o365.O365XML
+  name: Endpoints used by Office 365
+  node_type: miner
+  config_schema: o365-o365xml-config.json
+- id: minemeld.ft.phishme.Intelligence
+  name: PhishMe Intelligence provides accurate and timely alerts
+  node_type: miner
+  config_schema: phishme-intelligence-config.json
+- id: minemeld.ft.threatq.Export
+  name: ThreatQ - Threat Intelligence Platform (TIP) that centrally manages and correlates external sources
+  node_type: miner
+  config_schema: threatq-export-config.json
+- id: minemeld.ft.tmt.DTIAPI
+  name: Miner for The Media Trust DTI API
+  node_type: miner
+  config_schema: tmt-dtiapi-config.json
+- id: minemeld.ft.csv.CSVFT
+  name: Implements class for miners of csv feeds over http/https
+  node_type: miner
+  config_schema: csv-csvft-config.json
+- id: minemeld.ft.recordedfuture.IPRiskList
+  name: Recorded Future delivers automated, real-time threat intelligence
+  node_type: miner
+  config_schema: recordedfuture-iprisklist-config.json
+- id: minemeld.ft.recordedfuture.DomainRiskList
+  name: Recorded Future delivers automated, real-time threat intelligence
+  node_type: miner
+  config_schema: recordedfuture-domainrisklist-config.json
+- id: minemeld.ft.google.GoogleSPF
+  name: Miners for retrieving google net blocks for different services
+  node_type: miner
+  config_schema: google-googlespf-config.json
+- id: minemeld.ft.google.GoogleNetBlocks
+  name: Miners for retrieving google net blocks for different services
+  node_type: miner
+  config_schema: google-googlenetblocks-config.json
+- id: minemeld.ft.google.GoogleCloudNetBlocks
+  name: Miners for retrieving google net blocks for different services
+  node_type: miner
+  config_schema: google-googlecloudnetblocks-config.json
+- id: minemeld.ft.json.SimpleJSON
+  name: Implements class for miners of JSON feeds over http/https.
+  node_type: miner
+  config_schema: json-simplejson-config.json
+- id: minemeld.ft.vt.Notifications
+  name: VirusTotal is a free service that analyzes suspicious files and URLs
+  node_type: miner
+  config_schema: vt-notifications-config.json
+- id: minemeld.ft.local.YamlFT
+  name: Local indicators stored as YAML files
+  node_type: miner
+  config_schema: local-yamlft-config.json
+- id: minemeld.ft.local.YamlIPv4FT
+  name: Local indicators stored as YAML files
+  node_type: miner
+  config_schema: local-yamlipv4ft-config.json
+- id: minemeld.ft.local.YamlURLFT
+  name: Local indicators stored as YAML files
+  node_type: miner
+  config_schema: local-yamlurlft-config.json
+- id: minemeld.ft.local.YamlDomain
+  name: Local indicators stored as YAML files
+  node_type: miner
+  config_schema: local-yamldomain-config.json
+- id: minemeld.ft.local.YamlIPv6FT
+  name: Local indicators stored as YAML files
+  node_type: miner
+  config_schema: local-yamlipv6ft-config.json
+- id: minemeld.ft.proofpoint.ETIntelligence
+  name: Proofpoint ET Intelligence Actionable threat intelligence
+  node_type: miner
+  config_schema: proofpoint-etintelligence-config.json
+- id: minemeld.ft.proofpoint.EmergingThreatsIP
+  name: Proofpoint ET Intelligence Actionable threat intelligence
+  node_type: miner
+  config_schema: proofpoint-emergingthreatsip-config.json
+- id: minemeld.ft.proofpoint.EmergingThreatsDomain
+  name: Proofpoint ET Intelligence Actionable threat intelligence
+  node_type: miner
+  config_schema: proofpoint-emergingthreatsdomain-config.json
+- id: minemeld.ft.auscert.MaliciousURLFeed
+  name: AusCERT is a leading Cyber Emergency Response Team (CERT) in Australia
+  node_type: miner
+  config_schema: auscert-maliciousurlfeed-config.json
+- id: minemeld.ft.syslog.SyslogMiner
+  name: Syslog node connection to the local syslog server to receive PAN-OS logs
+  node_type: miner
+  config_schema: syslog-syslogminer-config.json
+- id: minemeld.ft.taxii.TaxiiClient
+  name: Miner implementing the TAXII format
+  node_type: miner
+  config_schema: taxii-taxiiclient-config.json
+- id: minemeld.ft.syslog.SyslogMatcher
+  name: Syslog node connection to the local syslog server to receive PAN-OS logs
+  node_type: processor
+  config_schema: syslog-syslogmatcher-config.json
+- id: minemeld.ft.op.AggregateFT
+  name: Aggregator for different types of indicators.
+  node_type: processor
+  config_schema: op-aggregateft-config.json
+- id: minemeld.ft.ipop.AggregateIPv4FT
+  name: Generic Aggregator for IPv4 indicators.
+  node_type: processor
+  config_schema: ipop-aggregateipv4ft-config.json
+- id: minemeld.ft.redis.RedisSet
+  name: External Dynamic List
+  node_type: output
+  config_schema: redis-redisset-config.json
+- id: minemeld.ft.dag.DagPusher
+  name: Push IP unicast indicators to PAN-OS devices via DAG
+  node_type: output
+  config_schema: dag-dagpusher-config.json
+- id: minemeld.ft.logstash.LogstashOutput
+  name: Logstash node to send indicators message to a local logstash instance
+  node_type: output
+  config_schema: logstash-logstashoutput-config.json
+- id: minemeld.ft.taxii.DataFeed
+  name: Output node implementing the TAXII format
+  node_type: output
+  config_schema: taxii-datafeed-config.json

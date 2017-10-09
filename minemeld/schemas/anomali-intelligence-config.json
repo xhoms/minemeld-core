@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.anomali.Intelligence",
+    "title": "minemeld.ft.anomali.Intelligence static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"            
+        }
+    },
+    "properties": {
+        "url": {
+            "type": "string"
+        },
+        "polling_timeout": {
+            "type": "integer"
+        },
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "prefix": {
+            "type": "string"
+        },
+        "query": {
+            "type": "string"
+        },
+        "fields": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": ["url"],
+    "additionalProperties": false
+}

@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.threatq.Export",
+    "title": "minemeld.ft.threatq.Export static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "polling_timeout": {
+            "type": "integer"
+        },
+        "url": {
+            "type": "string"
+        },
+        "side_config": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}

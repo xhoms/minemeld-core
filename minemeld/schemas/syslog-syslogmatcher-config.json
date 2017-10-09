@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.syslog.SyslogMatcher",
+    "title": "minemeld.ft.syslog.SyslogMatcher configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.base.BaseFT#"
+        }
+    },
+    "properties": {
+        "exchange": {
+            "type": "string"
+        },
+        "rabbitmq_username": {
+            "type": "string"
+        },
+        "rabbitmq_password": {
+            "type": "string"
+        },
+        "logstash_host": {
+            "type": "string"
+        },
+        "logstash_port": {
+            "type": "integer"
+        },
+        "input_types": {
+            "type": "object"
+        }
+    },
+    "additionalProperties": false
+}

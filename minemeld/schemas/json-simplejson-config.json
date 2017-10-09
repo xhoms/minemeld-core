@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.json.SimpleJSON",
+    "title": "minemeld.ft.json.SimpleJSON static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "polling_timeout": {
+            "type": "integer"
+        },
+        "url": {
+            "type": "string"
+        },
+        "extractor": {
+            "type": "string"
+        },
+        "indicator": {
+            "type": "string"
+        },
+        "prefix": {
+            "type": "string"
+        },
+        "username": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "fields": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "headers": {
+            "type": "object"
+        }
+    },
+    "required": [
+        "url"
+    ],
+    "additionalProperties": false
+}

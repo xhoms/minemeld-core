@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.ipop.AggregateIPv4FT",
+    "title": "minemeld.ft.ipop.AggregateIPv4FT configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.base.BaseFT#"
+        }
+    },
+    "properties": {
+        "whitelist_prefixes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "additionalProperties": false
+}

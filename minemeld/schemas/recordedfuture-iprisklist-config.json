@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.recordedfuture.IPRiskList",
+    "title": "minemeld.ft.recordedfuture.IPRiskList static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.csv.CSVFT#"
+        }
+    },
+    "properties": {
+        "confidence": {
+            "type": "integer"
+        },
+        "token": {
+            "type": "string"
+        },
+        "side_config": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}

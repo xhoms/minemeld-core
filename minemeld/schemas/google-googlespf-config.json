@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.google.GoogleSPF",
+    "title": "minemeld.ft.google.GoogleSPF static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "polling_timeout": {
+            "type": "integer"
+        },
+        "tries": {
+            "type": "integer"
+        },
+        "udp_port": {
+            "type": "integer"
+        },
+        "tcp_port": {
+            "type": "integer"
+        },
+        "source_name": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}

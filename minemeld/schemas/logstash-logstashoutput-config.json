@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.logstash.LogstashOutput",
+    "title": "minemeld.ft.logstash.LogstashOutput configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.base.BaseFT#"
+        }
+    },
+    "properties": {
+        "logstash_host": {
+            "type": "string"
+        },
+        "logstash_port": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}

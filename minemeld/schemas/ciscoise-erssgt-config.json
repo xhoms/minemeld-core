@@ -1,0 +1,33 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.ciscoise.ErsSgt",
+    "title": "minemeld.ft.ciscoise.ErsSgt static configuration",
+    "description": "Cisco Identity Services Engine (ISE) allows you to see and control users and devices connecting to the corporate network",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "hostname": {
+            "type": "string"
+        },
+        "username": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "timeout": {
+            "type": "integer"
+        },
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "side_config": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}

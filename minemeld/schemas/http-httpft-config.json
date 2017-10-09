@@ -18,7 +18,7 @@
     },
     "$extends": {
         "base": {
-            "$ref": "minemeld.ft.basepoller.BasePollerFT#"            
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
         }
     },
     "properties": {
@@ -46,6 +46,8 @@
             }
         }
     },
-    "required": ["url"],
+    "required": [
+        "url"
+    ],
     "additionalProperties": false
 }

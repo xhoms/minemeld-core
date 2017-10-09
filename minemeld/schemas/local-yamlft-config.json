@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.local.YamlFT",
+    "title": "minemeld.ft.local.YamlFT static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "path": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}

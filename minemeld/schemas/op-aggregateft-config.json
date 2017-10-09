@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.op.AggregateFT",
+    "title": "minemeld.ft.op.AggregateFT configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.base.BaseFT#"
+        }
+    },
+    "properties": {
+        "ignore_cases": {
+            "type": "boolean"
+        },
+        "whitelist_prefixes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "additionalProperties": false
+}

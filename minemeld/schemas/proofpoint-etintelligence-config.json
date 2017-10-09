@@ -1,0 +1,35 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.proofpoint.ETIntelligence",
+    "title": "minemeld.ft.proofpoint.ETIntelligence static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.basepoller.BasePollerFT#"
+        }
+    },
+    "properties": {
+        "score_threshold": {
+            "type": "integer"
+        },
+        "polling_timeout": {
+            "type": "integer"
+        },
+        "verify_cert": {
+            "type": "boolean"
+        },
+        "side_config": {
+            "type": "string"
+        },
+        "auth_code": {
+            "type": "string"
+        },
+        "monitored_categories": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "additionalProperties": false
+}

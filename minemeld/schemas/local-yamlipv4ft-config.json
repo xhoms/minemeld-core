@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.local.YamlIPv4FT",
+    "title": "minemeld.ft.local.YamlIPv4FT static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.local.YamlFT#"
+        }
+    },
+    "properties": {
+    },
+    "additionalProperties": false
+}

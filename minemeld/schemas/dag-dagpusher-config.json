@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.dag.DagPusher",
+    "title": "minemeld.ft.dag.DagPusher configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.base.BaseFT#"
+        }
+    },
+    "properties": {
+        "device_list": {
+            "type": "string"
+        },
+        "age_out": {
+            "type": "integer"
+        },
+        "age_out_interval": {
+            "type": "integer"
+        },
+        "tag_prefix": {
+            "type": "string"
+        },
+        "tag_watermark": {
+            "type": "string"
+        },
+        "persistent_registered_ips": {
+            "type": "boolean"
+        },
+        "tag_attributes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "additionalProperties": false
+}

@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "minemeld.ft.auscert.MaliciousURLFeed",
+    "title": "minemeld.ft.auscert.MaliciousURLFeed static configuration",
+    "type": "object",
+    "$extends": {
+        "base": {
+            "$ref": "minemeld.ft.http.HttpFT#"
+        }
+    },
+    "properties": {
+        "side_config": {
+            "type": "string"
+        },
+        "api_key": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}
